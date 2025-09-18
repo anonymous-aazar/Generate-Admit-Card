@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LTKCE Admit Card Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>LTK College of Engineering Admit Card Generator</h1>
+    <form id="admitForm">
+      <label>Full Name:</label>
+      <input type="text" id="fullName" required />
+
+      <label>ERP ID:</label>
+      <input
+        type="text"
+        id="erpId"
+        required
+        title="Enter your ERP ID"
+      />
+
+      <label>Select Branch:</label>
+      <select id="branch" required>
+        <option value="">--Select--</option>
+        <option value="CSE">CSE</option>
+        <option value="CSE(AI&ML)">CSE (AI & ML)</option>
+        <option value="CSE(IOT)">CSE (IoT)</option>
+        <option value="CSE(DS)">CSE (DS)</option>
+        <option value="EXTC">EXTC</option>
+        <option value="Electrical">Electrical</option>
+        <option value="Mechanical">Mechanical</option>
+      </select>
+
+      <button type="submit">Generate Admit Card</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admit Card - LTKCE</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- jsPDF and html2canvas CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container" id="admitCard">
+    <h1>LTK College of Engineering</h1>
+    <h2>University Examination Admit Card</h2>
+
+    <p><strong>Name:</strong> <span id="outName"></span></p>
+    <p><strong>ERP ID:</strong> <span id="outErp"></span></p>
+    <p><strong>Branch:</strong> <span id="outBranch"></span></p>
+    <p><strong>Seat No:</strong> <span id="seatNumber"></span></p>
+    <p><strong>Center:</strong> 411 (LTKCE)</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Code</th>
+          <th>Date</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="subjectsTable"></tbody>
+    </table>
+
+    <div class="signature-section">
+      <div>Signature of Candidate</div>
+      <div>Principal</div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px;">
+    <button id="downloadPdfBtn">Download PDF</button>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const name = params.get("name") || "";
+      const erp = params.get("erp") || "";
+      const branch = params.get("branch") || "";
+
+      // Safely get last 3 chars or pad with zeros if shorter
+      const erpLast3 = erp.slice(-3).padStart(3, "0");
+      const seatNumber = "251AM3" + erpLast3;
+
+      const subjects = [
+        { name: "Maths for Computer Science", code: "AIESC301" },
+        { name: "Computer Organization & Architecture", code: "AIPCC301" },
+        { name: "Ananlysis of Algorithm", code: "AIPCC302" },
+        { name: "Open Elective", code: "OE301x" },
+        { name: "Entrepreneurship and Financial Management", code: "EEMC301" },
+      ];
+
+      const examStartDate = new Date("2025-11-10");
+      const timeslot = "10:30 AM to 12:30 PM";
+
+      const tableBody = document.getElementById("subjectsTable");
+      const dateList = [];
+
+      let currentDate = new Date(examStartDate);
+      while (dateList.length < subjects.length) {
+        if (currentDate.getDay() !== 0) {
+          dateList.push(new Date(currentDate));
+        }
+        currentDate.setDate(currentDate.getDate() + 3);
+      }
+
+      function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+
+      subjects.forEach((subj, i) => {
+        const tr = document.createElement("tr");
+        const examDate = formatDate(dateList[i]);
+        tr.innerHTML = `
+          <td>${subj.name}</td>
+          <td>${subj.code}</td>
+          <td>${examDate}</td>
+          <td>${timeslot}</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      document.getElementById("outName").textContent = name;
+      document.getElementById("outErp").textContent = erp;
+      document.getElementById("outBranch").textContent = branch;
+      document.getElementById("seatNumber").textContent = seatNumber;
+
+      // PDF Generation logic
+      document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+        const admitCard = document.getElementById("admitCard");
+
+        html2canvas(admitCard, { scale: 2 }).then((canvas) => {
+          const imgData = canvas.toDataURL("image/png");
+
+          const pdf = new jspdf.jsPDF({
+            orientation: "portrait",
+            unit: "pt",
+            format: "a4",
+          });
+
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+
+          const imgProps = {
+            width: canvas.width,
+            height: canvas.height,
+          };
+
+          const ratio = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height);
+          const imgWidth = imgProps.width * ratio;
+          const imgHeight = imgProps.height * ratio;
+
+          const marginX = (pdfWidth - imgWidth) / 2;
+          const marginY = 20;
+
+          pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
+          pdf.save(`${name.replace(/\s+/g, "_")}_Admit_Card.pdf`);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
